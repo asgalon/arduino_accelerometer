@@ -16,13 +16,22 @@
 
 #include <Arduino_LSM9DS1.h>
 
+/**
+ * Struct of 3dimensional value
+ */
 struct s3dval {
   float x;
   float y;
   float z;
 
+  /**
+   * Constructor with default initialization to (0.0, 0.0, 0.0)
+   */
   s3dval(float _x=0.0f, float _y=0.0f, float _z=0.0f) : x(_x), y(_y), z(_z) {}
 
+  /**
+   * Operator overload: Add another 3d value componentwise
+   */
   s3dval& operator+=(s3dval& summand) {
     x += summand.x;
     y += summand.y;
@@ -32,11 +41,17 @@ struct s3dval {
   }
 };
 
+// Value buffer to take average over recent history
 static s3dval buffer[100];
+// gravity shows up through average unless we are in an accelerating rocket or similar
 static s3dval current_gravity;
-
+// pointer to current buffer position
 static int buf_head = 0;
 
+/**
+ * Estimate current gravity direction
+ * by taking the average acceleration over recent history
+ */
 static void estimateGravityDirection() {
   int samples_to_average = 100;
 
@@ -81,6 +96,12 @@ void loop() {
     Serial.print(buffer[buf_head].y - current_gravity.y);
     Serial.print('\t');
     Serial.print(buffer[buf_head].z - current_gravity.z);
+    Serial.print('\t');
+    Serial.print(current_gravity.x);
+    Serial.print('\t');
+    Serial.print(current_gravity.y);
+    Serial.print('\t');
+    Serial.print(current_gravity.z);
     Serial.println("\t-5.0\t5.0");
 
 
